@@ -45,26 +45,163 @@ impl VersionExtractor {
         // Blacklist of executables that should not be executed
         // These are known to open GUI windows, hang, or cause issues
         let blacklist = [
+            // Git GUI tools
             "git-gui",
             "gitk",
             "git-citool",
+            // Office applications
             "winword",
             "excel",
             "powerpnt",
+            // Windows GUI applications
             "mspaint",
             "notepad",
             "calc",
             "explorer",
+            "write",
+            "wordpad",
+            // Scripting hosts
             "cmd",
             "powershell",
+            "pwsh",
             "wscript",
             "cscript",
             "mshta",
             "rundll32",
+            // Windows system tools that output usage instead of version
+            "apphostnameregistrationverifier",
+            "appidpolicyconverter",
+            "appverifier",
+            "aspnet_regiis",
+            "bcdedit",
+            "bitsadmin",
+            "certreq",
+            "certutil",
+            "chkdsk",
+            "choice",
+            "cipher",
+            "clip",
+            "cmdkey",
+            "cmstp",
+            "comp",
+            "compact",
+            "computerdefaults",
+            "control",
+            "convert",
+            "cscript",
+            "dism",
+            "diskpart",
+            "doskey",
+            "driverquery",
+            "eventcreate",
+            "expand",
+            "extrac32",
+            "fc",
+            "find",
+            "findstr",
+            "fontview",
+            "forfiles",
+            "fsutil",
+            "ftp",
+            "getmac",
+            "gpresult",
+            "gpupdate",
+            "help",
+            "hostname",
+            "icacls",
+            "iexpress",
+            "label",
+            "logoff",
+            "makecab",
+            "manage-bde",
+            "mkdir",
+            "mklink",
+            "mode",
+            "more",
+            "mountvol",
+            "move",
+            "msiexec",
+            "msinfo32",
+            "mstsc",
+            "net",
+            "netsh",
+            "netstat",
+            "nslookup",
+            "openfiles",
+            "path",
+            "pathping",
+            "pause",
+            "ping",
+            "pnputil",
+            "print",
+            "prompt",
+            "pushd",
+            "qprocess",
+            "query",
+            "quser",
+            "qwinsta",
+            "rasdial",
+            "rcp",
+            "recover",
+            "reg",
+            "regini",
+            "regsvr32",
+            "relog",
+            "rem",
+            "ren",
+            "rename",
+            "repair-bde",
+            "replace",
+            "reset",
+            "rmdir",
+            "robocopy",
+            "route",
+            "rpcping",
+            "runas",
+            "sc",
+            "schtasks",
+            "secedit",
+            "set",
+            "setlocal",
+            "setx",
+            "sfc",
+            "shutdown",
+            "sort",
+            "start",
+            "subst",
+            "systeminfo",
+            "takeown",
+            "taskkill",
+            "tasklist",
+            "telnet",
+            "time",
+            "timeout",
+            "title",
+            "tracert",
+            "tree",
+            "type",
+            "typeperf",
+            "tzutil",
+            "ver",
+            "verify",
+            "vol",
+            "vssadmin",
+            "w32tm",
+            "waitfor",
+            "wbadmin",
+            "wevtutil",
+            "where",
+            "whoami",
+            "winmgmt",
+            "winrm",
+            "winrs",
+            "wmic",
+            "wscript",
+            "xcopy",
         ];
 
         let name_lower = binary_name.to_lowercase();
-        blacklist.iter().any(|&blocked| name_lower.contains(blocked))
+        blacklist.iter().any(|&blocked| name_lower == blocked || name_lower.starts_with(&format!("{}_", blocked)))
     }
 
     fn try_execution_methods(&self, path: &std::path::Path) -> Option<VersionInfo> {
@@ -131,6 +268,18 @@ impl VersionExtractor {
     }
 
     fn parse_version_output(&self, output: &str) -> Option<String> {
+        // Reject usage/help messages
+        let output_lower = output.to_lowercase();
+        if output_lower.contains("usage:")
+            || output_lower.contains("--help")
+            || output_lower.contains("invalid")
+            || output_lower.contains("error:")
+            || output_lower.contains("command not found")
+            || output.lines().count() > 10
+        {
+            return None;
+        }
+
         // Common version patterns
         let patterns = vec![
             // Semantic versioning: X.Y.Z
@@ -152,13 +301,6 @@ impl VersionExtractor {
                         return Some(version.as_str().to_string());
                     }
                 }
-            }
-        }
-
-        // If no pattern matched, try to extract first line
-        if let Some(first_line) = output.lines().next() {
-            if !first_line.is_empty() && first_line.len() < 100 {
-                return Some(first_line.to_string());
             }
         }
 
