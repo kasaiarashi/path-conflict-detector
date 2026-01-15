@@ -243,6 +243,27 @@ cargo fmt
 cargo clippy
 ```
 
+### Releasing
+
+To create a new release:
+
+1. Update version in `Cargo.toml`
+2. Update `CHANGELOG.md` with release notes
+3. Commit changes:
+   ```bash
+   git add Cargo.toml CHANGELOG.md
+   git commit -m "Bump version to X.Y.Z"
+   ```
+4. Create and push a tag:
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin master --tags
+   ```
+5. GitHub Actions will automatically:
+   - Build binaries for Linux, Windows, macOS (Intel & ARM)
+   - Create a GitHub release
+   - Attach binaries to the release
+
 ## Supported Platforms
 
 - **Windows**: Native Windows executables, WSL integration
