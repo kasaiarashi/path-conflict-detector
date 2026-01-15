@@ -46,9 +46,11 @@ pub fn is_windows_path_in_wsl(path: &Path) -> bool {
     let path_str = path.to_string_lossy();
 
     // Check for /mnt/c/, /mnt/d/, etc.
-    if path_str.starts_with("/mnt/") {
-        if let Some(third_char) = path_str.chars().nth(5) {
-            return third_char == '/';
+    if path_str.starts_with("/mnt/") && path_str.len() >= 7 {
+        let drive_char = path_str.chars().nth(5);
+        let slash_char = path_str.chars().nth(6);
+        if let (Some(drive), Some(slash)) = (drive_char, slash_char) {
+            return drive.is_ascii_alphabetic() && slash == '/';
         }
     }
 
@@ -87,12 +89,12 @@ pub fn convert_wsl_to_windows_path(path: &Path) -> Option<String> {
     if path_str.starts_with("/mnt/") && path_str.len() > 6 {
         let drive_letter = path_str.chars().nth(5)?;
         if drive_letter.is_ascii_alphabetic() {
-            let rest = &path_str[6..];
-            let windows_path = format!(
-                "{}:\\{}",
-                drive_letter.to_uppercase(),
-                rest.replace('/', "\\")
-            );
+            let rest = &path_str[7..]; // Skip "/mnt/c/" to get the rest
+            let windows_path = if rest.is_empty() {
+                format!("{}:\\", drive_letter.to_uppercase())
+            } else {
+                format!("{}:\\{}", drive_letter.to_uppercase(), rest.replace('/', "\\"))
+            };
             return Some(windows_path);
         }
     }
