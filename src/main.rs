@@ -1,5 +1,5 @@
 use clap::Parser;
-use path_conflict_detector::cli::{Args, run};
+use path_conflict_detector::cli::{run, Args};
 use std::process;
 
 fn main() {

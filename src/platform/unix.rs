@@ -92,10 +92,7 @@ mod tests {
     fn test_expand_unix_env_vars() {
         std::env::set_var("TEST_VAR", "test_value");
         assert_eq!(expand_unix_env_vars("$TEST_VAR/bin"), "test_value/bin");
-        assert_eq!(
-            expand_unix_env_vars("${TEST_VAR}/bin"),
-            "test_value/bin"
-        );
+        assert_eq!(expand_unix_env_vars("${TEST_VAR}/bin"), "test_value/bin");
         std::env::remove_var("TEST_VAR");
     }
 

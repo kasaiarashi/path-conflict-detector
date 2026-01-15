@@ -1,4 +1,4 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::output::types::PathEntry;
 use crate::platform;
 use std::path::PathBuf;
@@ -70,10 +70,7 @@ impl PathParser {
         }
 
         // Try to read the directory
-        match std::fs::read_dir(path) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
+        std::fs::read_dir(path).is_ok()
     }
 }
 

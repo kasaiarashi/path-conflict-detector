@@ -22,7 +22,7 @@ impl ConflictDetector {
             for executable in &entry.executables {
                 executable_index
                     .entry(executable.name.clone())
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(executable.clone());
             }
         }
@@ -52,9 +52,9 @@ impl ConflictDetector {
             let description = self.generate_description(&binary_name, &instances, &active_instance);
 
             // Generate recommendation
-            let recommendation = self
-                .categorizer
-                .generate_recommendation(category, &binary_name, &instances);
+            let recommendation =
+                self.categorizer
+                    .generate_recommendation(category, &binary_name, &instances);
 
             conflicts.push(Conflict {
                 binary_name,
@@ -73,7 +73,11 @@ impl ConflictDetector {
         Ok(conflicts)
     }
 
-    pub fn find_binary_conflicts(&self, path_entries: &[PathEntry], binary_name: &str) -> Result<Option<Conflict>> {
+    pub fn find_binary_conflicts(
+        &self,
+        path_entries: &[PathEntry],
+        binary_name: &str,
+    ) -> Result<Option<Conflict>> {
         let all_conflicts = self.detect_conflicts(path_entries)?;
         Ok(all_conflicts
             .into_iter()
@@ -129,27 +133,25 @@ mod tests {
     #[test]
     fn test_no_conflicts() {
         let detector = ConflictDetector::new(create_test_platform());
-        let path_entries = vec![
-            PathEntry {
-                path: PathBuf::from("/usr/bin"),
-                order: 0,
-                exists: true,
-                is_accessible: true,
-                executables: vec![ExecutableInfo {
-                    name: "python".to_string(),
-                    full_path: PathBuf::from("/usr/bin/python"),
-                    size: 1000,
-                    modified: 0,
-                    is_symlink: false,
-                    symlink_target: None,
-                    resolved_path: PathBuf::from("/usr/bin/python"),
-                    version: None,
-                    manager: None,
-                    file_hash: None,
-                    path_order: 0,
-                }],
-            },
-        ];
+        let path_entries = vec![PathEntry {
+            path: PathBuf::from("/usr/bin"),
+            order: 0,
+            exists: true,
+            is_accessible: true,
+            executables: vec![ExecutableInfo {
+                name: "python".to_string(),
+                full_path: PathBuf::from("/usr/bin/python"),
+                size: 1000,
+                modified: 0,
+                is_symlink: false,
+                symlink_target: None,
+                resolved_path: PathBuf::from("/usr/bin/python"),
+                version: None,
+                manager: None,
+                file_hash: None,
+                path_order: 0,
+            }],
+        }];
 
         let result = detector.detect_conflicts(&path_entries).unwrap();
         assert_eq!(result.len(), 0);

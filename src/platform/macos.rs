@@ -59,9 +59,7 @@ mod tests {
 
     #[test]
     fn test_is_homebrew_path() {
-        assert!(is_homebrew_path(Path::new(
-            "/opt/homebrew/bin/python3"
-        )));
+        assert!(is_homebrew_path(Path::new("/opt/homebrew/bin/python3")));
         assert!(is_homebrew_path(Path::new(
             "/usr/local/Cellar/node/18.0.0/bin/node"
         )));
@@ -71,9 +69,9 @@ mod tests {
     #[test]
     fn test_is_macos_system_path() {
         assert!(is_macos_system_path(Path::new("/usr/bin/python")));
-        assert!(is_macos_system_path(Path::new("/System/Library/Frameworks")));
-        assert!(!is_macos_system_path(Path::new(
-            "/opt/homebrew/bin/python"
+        assert!(is_macos_system_path(Path::new(
+            "/System/Library/Frameworks"
         )));
+        assert!(!is_macos_system_path(Path::new("/opt/homebrew/bin/python")));
     }
 }

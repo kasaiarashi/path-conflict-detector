@@ -1,7 +1,7 @@
+pub mod macos;
+pub mod unix;
 pub mod windows;
 pub mod wsl;
-pub mod unix;
-pub mod macos;
 
 use crate::error::{Error, Result};
 use crate::output::types::PlatformInfo;

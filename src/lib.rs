@@ -1,9 +1,9 @@
-pub mod error;
-pub mod platform;
-pub mod core;
 pub mod analyzers;
-pub mod output;
 pub mod cli;
+pub mod core;
+pub mod error;
+pub mod output;
+pub mod platform;
 
 pub use error::{Error, Result};
 pub use output::types::*;
@@ -24,7 +24,7 @@ pub struct AnalysisOptions {
 impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
-            extract_versions: false,  // Disabled by default due to Windows issues
+            extract_versions: false, // Disabled by default due to Windows issues
             resolve_symlinks: true,
             categorize_managers: true,
             include_file_hashes: false,

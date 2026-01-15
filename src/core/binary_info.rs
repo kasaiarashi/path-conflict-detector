@@ -25,7 +25,7 @@ impl BinaryInfoExtractor {
     fn compute_file_hash(&self, path: &std::path::Path) -> Option<String> {
         // Simple hash computation using a basic algorithm
         // In production, you might want to use a proper hashing library like sha2
-        let mut file = fs::File::open(path).ok()?;
+        let file = fs::File::open(path).ok()?;
         let mut buffer = Vec::new();
 
         // Read first 8KB for hash (to avoid reading huge files)

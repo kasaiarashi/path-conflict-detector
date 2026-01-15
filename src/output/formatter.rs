@@ -35,7 +35,11 @@ impl HumanFormatter {
         if !result.conflicts.is_empty() {
             output.push_str(&self.format_detailed_conflicts(&result.conflicts));
         } else {
-            output.push_str(&"No conflicts detected! All executables in PATH are unique.\n".green().to_string());
+            output.push_str(
+                &"No conflicts detected! All executables in PATH are unique.\n"
+                    .green()
+                    .to_string(),
+            );
         }
 
         output
@@ -57,13 +61,20 @@ impl HumanFormatter {
         if result.platform.is_wsl {
             let wsl_info = format!(
                 " with {}",
-                result.platform.wsl_version.as_ref().unwrap_or(&"WSL".to_string())
+                result
+                    .platform
+                    .wsl_version
+                    .as_ref()
+                    .unwrap_or(&"WSL".to_string())
             );
             output.push_str(&wsl_info.cyan().to_string());
         }
 
         output.push('\n');
-        output.push_str(&format!("Scan Time: {}\n", result.scan_time.format("%Y-%m-%d %H:%M:%S UTC")));
+        output.push_str(&format!(
+            "Scan Time: {}\n",
+            result.scan_time.format("%Y-%m-%d %H:%M:%S UTC")
+        ));
 
         output
     }
@@ -76,14 +87,32 @@ impl HumanFormatter {
         output.push_str(&"─".repeat(60));
         output.push('\n');
 
-        output.push_str(&format!("Total PATH Entries: {}\n", summary.total_path_entries));
-        output.push_str(&format!("Total Executables: {}\n", summary.total_executables));
-        output.push_str(&format!("Unique Executables: {}\n", summary.unique_executables));
+        output.push_str(&format!(
+            "Total PATH Entries: {}\n",
+            summary.total_path_entries
+        ));
+        output.push_str(&format!(
+            "Total Executables: {}\n",
+            summary.total_executables
+        ));
+        output.push_str(&format!(
+            "Unique Executables: {}\n",
+            summary.unique_executables
+        ));
 
         if summary.total_conflicts > 0 {
-            output.push_str(&format!("Conflicts Found: {}\n", summary.total_conflicts).red().bold().to_string());
+            output.push_str(
+                &format!("Conflicts Found: {}\n", summary.total_conflicts)
+                    .red()
+                    .bold()
+                    .to_string(),
+            );
         } else {
-            output.push_str(&format!("Conflicts Found: {}\n", summary.total_conflicts).green().to_string());
+            output.push_str(
+                &format!("Conflicts Found: {}\n", summary.total_conflicts)
+                    .green()
+                    .to_string(),
+            );
         }
 
         output
@@ -139,14 +168,15 @@ impl HumanFormatter {
         let severity_icon = self.severity_icon(&conflict.severity);
         let header = format!(
             "[{}] {} {}: {} ({})",
-            number,
-            severity_icon,
-            conflict.severity,
-            conflict.binary_name,
-            conflict.category
+            number, severity_icon, conflict.severity, conflict.binary_name, conflict.category
         );
 
-        output.push_str(&self.colorize_by_severity(&header, &conflict.severity).bold().to_string());
+        output.push_str(
+            &self
+                .colorize_by_severity(&header, &conflict.severity)
+                .bold()
+                .to_string(),
+        );
         output.push('\n');
         output.push_str(&"─".repeat(60));
         output.push('\n');

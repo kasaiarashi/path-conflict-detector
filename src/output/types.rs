@@ -1,7 +1,7 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AnalysisResult {
@@ -68,10 +68,10 @@ pub struct ManagerInfo {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum ManagerType {
-    VersionManager,  // nvm, pyenv, rbenv, rustup
-    PackageManager,  // brew, apt, chocolatey
-    SystemInstall,   // System-installed
-    ManualInstall,   // User-installed manually
+    VersionManager, // nvm, pyenv, rbenv, rustup
+    PackageManager, // brew, apt, chocolatey
+    SystemInstall,  // System-installed
+    ManualInstall,  // User-installed manually
     Unknown,
 }
 

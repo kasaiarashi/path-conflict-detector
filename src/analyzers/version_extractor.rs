@@ -12,7 +12,9 @@ impl VersionExtractor {
     }
 
     pub fn with_timeout(timeout_secs: u64) -> Self {
-        VersionExtractor { _timeout_secs: timeout_secs }
+        VersionExtractor {
+            _timeout_secs: timeout_secs,
+        }
     }
 
     pub fn extract_versions(&self, executables: &mut [ExecutableInfo]) {
@@ -201,16 +203,13 @@ impl VersionExtractor {
         ];
 
         let name_lower = binary_name.to_lowercase();
-        blacklist.iter().any(|&blocked| name_lower == blocked || name_lower.starts_with(&format!("{}_", blocked)))
+        blacklist.iter().any(|&blocked| {
+            name_lower == blocked || name_lower.starts_with(&format!("{}_", blocked))
+        })
     }
 
     fn try_execution_methods(&self, path: &std::path::Path) -> Option<VersionInfo> {
-        let version_args = vec![
-            vec!["--version"],
-            vec!["-v"],
-            vec!["version"],
-            vec!["-V"],
-        ];
+        let version_args = vec![vec!["--version"], vec!["-v"], vec!["version"], vec!["-V"]];
 
         for args in version_args {
             if let Some(output) = self.execute_with_timeout(path, &args) {
@@ -232,7 +231,7 @@ impl VersionExtractor {
         let mut command = Command::new(path);
         command
             .args(args)
-            .stdin(Stdio::null())     // Close stdin to prevent hanging
+            .stdin(Stdio::null()) // Close stdin to prevent hanging
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 

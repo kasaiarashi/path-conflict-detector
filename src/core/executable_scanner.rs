@@ -1,4 +1,4 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::output::types::{ExecutableInfo, PathEntry};
 use crate::platform;
 use std::collections::HashSet;
@@ -54,7 +54,7 @@ impl ExecutableScanner {
         Ok(())
     }
 
-    fn should_skip_directory(&self, path: &PathBuf) -> bool {
+    fn should_skip_directory(&self, path: &std::path::Path) -> bool {
         let path_str = path.to_string_lossy().to_lowercase();
 
         // Windows system directories
@@ -154,9 +154,9 @@ impl ExecutableScanner {
                 is_symlink,
                 symlink_target,
                 resolved_path,
-                version: None,           // Will be filled by version extractor
-                manager: None,           // Will be filled by manager detector
-                file_hash: None,         // Optional, can be computed if needed
+                version: None,   // Will be filled by version extractor
+                manager: None,   // Will be filled by manager detector
+                file_hash: None, // Optional, can be computed if needed
                 path_order,
             });
         }
@@ -209,14 +209,8 @@ mod tests {
 
         #[cfg(unix)]
         {
-            assert_eq!(
-                scanner.get_binary_name(&PathBuf::from("python")),
-                "python"
-            );
-            assert_eq!(
-                scanner.get_binary_name(&PathBuf::from("node")),
-                "node"
-            );
+            assert_eq!(scanner.get_binary_name(&PathBuf::from("python")), "python");
+            assert_eq!(scanner.get_binary_name(&PathBuf::from("node")), "node");
         }
     }
 }

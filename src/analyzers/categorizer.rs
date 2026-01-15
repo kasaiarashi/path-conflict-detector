@@ -1,6 +1,4 @@
-use crate::output::types::{
-    Conflict, ConflictCategory, ExecutableInfo, ManagerType, PlatformInfo, Severity,
-};
+use crate::output::types::{ConflictCategory, ExecutableInfo, ManagerType, PlatformInfo, Severity};
 use crate::platform::wsl;
 
 pub struct ConflictCategorizer {
@@ -12,7 +10,7 @@ impl ConflictCategorizer {
         ConflictCategorizer { platform }
     }
 
-    pub fn categorize(&self, binary_name: &str, instances: &[ExecutableInfo]) -> ConflictCategory {
+    pub fn categorize(&self, _binary_name: &str, instances: &[ExecutableInfo]) -> ConflictCategory {
         // Check for WSL vs Windows conflicts (only on WSL)
         if self.platform.is_wsl && self.is_wsl_vs_windows_conflict(instances) {
             return ConflictCategory::WslVsWindows;
@@ -132,13 +130,14 @@ impl ConflictCategorizer {
             return false;
         }
 
-        let has_wsl = instances
-            .iter()
-            .any(|i| wsl::is_wsl_path(&i.resolved_path) && !wsl::is_windows_path_in_wsl(&i.resolved_path));
+        let has_wsl = instances.iter().any(|i| {
+            wsl::is_wsl_path(&i.resolved_path) && !wsl::is_windows_path_in_wsl(&i.resolved_path)
+        });
 
-        let has_windows = instances
-            .iter()
-            .any(|i| wsl::is_windows_path_in_wsl(&i.resolved_path) || wsl::is_windows_executable_in_wsl(&i.resolved_path));
+        let has_windows = instances.iter().any(|i| {
+            wsl::is_windows_path_in_wsl(&i.resolved_path)
+                || wsl::is_windows_executable_in_wsl(&i.resolved_path)
+        });
 
         has_wsl && has_windows
     }
@@ -245,7 +244,6 @@ impl ConflictCategorizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     fn create_test_platform() -> PlatformInfo {
         PlatformInfo {
