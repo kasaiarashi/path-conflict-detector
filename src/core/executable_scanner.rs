@@ -55,11 +55,10 @@ impl ExecutableScanner {
     }
 
     fn should_skip_directory(&self, path: &std::path::Path) -> bool {
-        let path_str = path.to_string_lossy().to_lowercase();
-
         // Windows system directories
         #[cfg(windows)]
         {
+            let path_str = path.to_string_lossy().to_lowercase();
             if path_str.contains("windows\\system32")
                 || path_str.contains("windows\\syswow64")
                 || path_str.contains("windows\\winsxs")
