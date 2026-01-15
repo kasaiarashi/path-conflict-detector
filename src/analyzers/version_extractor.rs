@@ -1,20 +1,18 @@
-use crate::error::Result;
 use crate::output::types::{ExecutableInfo, VersionInfo};
 use regex::Regex;
 use std::process::{Command, Stdio};
-use std::time::Duration;
 
 pub struct VersionExtractor {
-    timeout_secs: u64,
+    _timeout_secs: u64,
 }
 
 impl VersionExtractor {
     pub fn new() -> Self {
-        VersionExtractor { timeout_secs: 5 }
+        VersionExtractor { _timeout_secs: 5 }
     }
 
     pub fn with_timeout(timeout_secs: u64) -> Self {
-        VersionExtractor { timeout_secs }
+        VersionExtractor { _timeout_secs: timeout_secs }
     }
 
     pub fn extract_versions(&self, executables: &mut [ExecutableInfo]) {
@@ -26,6 +24,11 @@ impl VersionExtractor {
     }
 
     pub fn extract(&self, path: &std::path::Path, binary_name: &str) -> Option<VersionInfo> {
+        // Skip known problematic executables
+        if self.should_skip_binary(binary_name) {
+            return self.try_path_parsing(path, binary_name);
+        }
+
         // Try different version extraction methods
         if let Some(version) = self.try_execution_methods(path) {
             return Some(version);
@@ -38,13 +41,38 @@ impl VersionExtractor {
         None
     }
 
+    fn should_skip_binary(&self, binary_name: &str) -> bool {
+        // Blacklist of executables that should not be executed
+        // These are known to open GUI windows, hang, or cause issues
+        let blacklist = [
+            "git-gui",
+            "gitk",
+            "git-citool",
+            "winword",
+            "excel",
+            "powerpnt",
+            "mspaint",
+            "notepad",
+            "calc",
+            "explorer",
+            "cmd",
+            "powershell",
+            "wscript",
+            "cscript",
+            "mshta",
+            "rundll32",
+        ];
+
+        let name_lower = binary_name.to_lowercase();
+        blacklist.iter().any(|&blocked| name_lower.contains(blocked))
+    }
+
     fn try_execution_methods(&self, path: &std::path::Path) -> Option<VersionInfo> {
         let version_args = vec![
             vec!["--version"],
             vec!["-v"],
             vec!["version"],
             vec!["-V"],
-            vec!["--version"],
         ];
 
         for args in version_args {
@@ -63,13 +91,24 @@ impl VersionExtractor {
     }
 
     fn execute_with_timeout(&self, path: &std::path::Path, args: &[&str]) -> Option<String> {
-        // Try to execute the binary with the given arguments
-        match Command::new(path)
+        // Create command with proper configuration to prevent GUI windows
+        let mut command = Command::new(path);
+        command
             .args(args)
+            .stdin(Stdio::null())     // Close stdin to prevent hanging
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .output()
+            .stderr(Stdio::piped());
+
+        // On Windows, use CREATE_NO_WINDOW flag to prevent GUI windows
+        #[cfg(windows)]
         {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            command.creation_flags(CREATE_NO_WINDOW);
+        }
+
+        // Try to execute the binary with the given arguments
+        match command.output() {
             Ok(output) => {
                 // Try stdout first
                 if let Ok(stdout) = String::from_utf8(output.stdout) {
