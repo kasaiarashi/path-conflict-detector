@@ -93,7 +93,11 @@ pub fn convert_wsl_to_windows_path(path: &Path) -> Option<String> {
             let windows_path = if rest.is_empty() {
                 format!("{}:\\", drive_letter.to_uppercase())
             } else {
-                format!("{}:\\{}", drive_letter.to_uppercase(), rest.replace('/', "\\"))
+                format!(
+                    "{}:\\{}",
+                    drive_letter.to_uppercase(),
+                    rest.replace('/', "\\")
+                )
             };
             return Some(windows_path);
         }
