@@ -24,7 +24,7 @@ pub struct AnalysisOptions {
 impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
-            extract_versions: true,
+            extract_versions: false,  // Disabled by default due to Windows issues
             resolve_symlinks: true,
             categorize_managers: true,
             include_file_hashes: false,

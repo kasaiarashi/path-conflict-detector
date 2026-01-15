@@ -35,8 +35,8 @@ pub struct Args {
     #[arg(long)]
     pub conflicts_only: bool,
 
-    /// Extract version information from binaries
-    #[arg(long, default_value_t = true)]
+    /// Extract version information from binaries (may be slow/problematic on Windows)
+    #[arg(long)]
     pub extract_versions: bool,
 
     /// Resolve symbolic links

@@ -31,6 +31,15 @@ impl ExecutableScanner {
                 continue;
             }
 
+            // Skip Windows system directories - they contain hundreds of system utilities
+            // that aren't relevant for developer tool conflict detection
+            if self.should_skip_directory(&entry.path) {
+                if cfg!(debug_assertions) {
+                    eprintln!("Skipping system directory: {}", entry.path.display());
+                }
+                continue;
+            }
+
             match self.scan_directory(&entry.path, entry.order) {
                 Ok(executables) => {
                     entry.executables = executables;
@@ -43,6 +52,25 @@ impl ExecutableScanner {
         }
 
         Ok(())
+    }
+
+    fn should_skip_directory(&self, path: &PathBuf) -> bool {
+        let path_str = path.to_string_lossy().to_lowercase();
+
+        // Windows system directories
+        #[cfg(windows)]
+        {
+            if path_str.contains("windows\\system32")
+                || path_str.contains("windows\\syswow64")
+                || path_str.contains("windows\\winsxs")
+                || path_str.starts_with("c:\\windows\\")
+            {
+                return true;
+            }
+        }
+
+        // Skip very large system directories on any platform
+        false
     }
 
     pub fn scan_directory(&self, path: &PathBuf, path_order: usize) -> Result<Vec<ExecutableInfo>> {
